@@ -23,17 +23,23 @@ set(PROJECT_SOURCES
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
+    qt_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
+    add_custom_target(translations DEPENDS ${QM_FILES})
+
     qt_add_executable(EVEMaster
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
     )
+
+    add_dependencies(EVEMaster translations)
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET EVEMaster APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
 #                 ${CMAKE_CURRENT_SOURCE_DIR}/android)
 # For more information, see https://doc.qt.io/qt-6/qt-add-executable.html#target-creation
-
-    qt_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
 else()
+    qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
+    add_custom_target(translations DEPENDS ${QM_FILES})
+
     if(ANDROID)
         add_library(EVEMaster SHARED
             ${PROJECT_SOURCES}
@@ -46,7 +52,7 @@ else()
         )
     endif()
 
-    qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
+    add_dependencies(EVEMaster translations)
 endif()
 
 target_link_libraries(EVEMaster PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Sql)
